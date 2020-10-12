@@ -88,4 +88,70 @@
                 LIMIT 5";
         return $sql;
     }
+
+    function searchFull($query, $offset=0, $limit=1073741824){
+
+        $query = trim($query);
+        if (mb_strlen($query)===0){
+            // no need for empty search right?
+            return false; 
+        }
+        $query = limitChars($query);
+
+        // Weighing scores
+        $scoreName = 3;
+        $scoreImage = 2;
+        $scoreDetail = 1;
+
+        foreach(explode(" ", $query) as $key){
+            $keywords[] = $key;
+        }
+        $nameSQL = array();
+        $imageSQL = array();
+        $detailSQL = array();
+
+        /** Matching full occurences **/
+        if (count($keywords) > 1){
+            $nameSQL[] = "if (prd_name LIKE '%". $query."%',".$scoreName*count($keywords).",0)";
+            $imageSQL[] = "if (prd_image LIKE '%". $query."%',".$scoreImage*count($keywords).",0)";
+            $detailSQL[] = "if (prd_details LIKE '%". $query."%',".$scoreDetail*count($keywords).",0)";
+        }
+
+        /** Matching Keywords **/
+        foreach($keywords as $key){
+            $nameSQL[] = "if (prd_name LIKE '%".$key."%',{$scoreName},0)";
+            $imageSQL[] = "if (prd_image LIKE '%".$key."%',{$scoreName},0)";
+            $detailSQL[] = "if (prd_details LIKE '%".$key."%',{$scoreDetail},0)";
+        }
+
+        // Just incase it's empty, add 0
+        if (empty($nameSQL)){
+            $nameSQL[] = 0;
+        }
+        if (empty($detailSQL)){
+            $detailSQL[] = 0;
+        }
+        if (empty($imageSQL)){
+            $imageSQL[] = 0;
+        }
+
+        $sql = "SELECT *,
+                (
+                    (
+                    ".implode(" + ", $nameSQL)."
+                    )+
+                    (
+                    ".implode(" + ", $imageSQL)." 
+                    )+
+                    (
+                    ".implode(" + ", $detailSQL)." 
+                    )
+                ) as relevance
+                FROM product
+                WHERE prd_status = 1
+                HAVING relevance > 0
+                ORDER BY relevance DESC
+                LIMIT ".$offset.", ".$limit;
+        return $sql;
+    }
 ?>
