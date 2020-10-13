@@ -113,14 +113,7 @@ $list_page .= '<li class="page-item"><a class="page-link" href="index.php?page_l
                                     <td><?php echo $row['cat_name'] ?></td>
                                     <td class="form-group">
                                         <a href="index.php?page_layout=edit_product&prd_id=<?php echo $row['prd_id']; ?>" class="btn btn-primary"><i class="glyphicon glyphicon-pencil"></i></a>
-                                        <script>
-                                            function confirmDelete(delUrl) {
-                                                if (confirm("Bạn có muốn xóa sản phẩm này không?")) {
-                                                    document.location = delUrl;
-                                                }
-                                            }
-                                        </script>
-                                        <a href="javascript:confirmDelete('del_product.php?prd_id=<?php echo $row['prd_id'] ?>')" class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i></a>
+                                        <button  data-toggle="modal" data-target="#confirm-delete-modal" data-title="<?php echo $row['prd_name'] ?>" data-id="<?php echo $row['prd_id'] ?>" class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i></button>
                                     </td>
                                 </tr>
                             <?php } ?>
@@ -143,4 +136,26 @@ $list_page .= '<li class="page-item"><a class="page-link" href="index.php?page_l
     </div>
     <!--/.row-->
 </div>
+<div id="confirm-delete-modal"  class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Xác nhận xóa</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="modal-product-name" class="font-weight-bold">Xóa sản phẩm</p>
+      </div>
+      <div class="modal-footer">
+        <a id="delete-link" href="" class="btn btn-primary">Xóa</a>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+
+</script>
 <!--/.main-->
